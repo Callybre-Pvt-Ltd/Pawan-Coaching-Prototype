@@ -5,7 +5,6 @@ import {
   GraduationCap,
   MapPin,
   Phone,
-  Sparkles,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -63,9 +62,6 @@ export default async function Home() {
       <section className="hero">
         <div className="container-shell hero-grid">
           <div>
-            <span className="pill">
-              <Sparkles size={14} /> Clear concepts. Confident learners.
-            </span>
             <h1>
               Build a stronger <span>academic foundation.</span>
             </h1>
@@ -186,8 +182,11 @@ export default async function Home() {
                 </span>
               </div>
             </div>
-            <Link className="btn btn-primary" href="/login">
-              Existing student or tutor? Sign in
+            <Link className="btn btn-primary contact-sign-in" href="/login">
+              <span className="contact-sign-in-full">
+                Existing student or tutor? Sign in
+              </span>
+              <span className="contact-sign-in-short">Sign in</span>
             </Link>
           </div>
         </div>
@@ -195,7 +194,14 @@ export default async function Home() {
 
       <footer className="footer">
         <div className="container-shell footer-row">
-          <Brand />
+          <a
+            className="footer-powered-by"
+            href="https://callybre.com/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Powered by <strong>Callybre</strong>
+          </a>
           <span>
             © {new Date().getFullYear()} Pawan Sir Commerce &amp; English
             Classes

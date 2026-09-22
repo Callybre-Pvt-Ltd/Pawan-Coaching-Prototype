@@ -6,18 +6,19 @@ import {
   Cake,
   CalendarDays,
   ChevronLeft,
+  ChevronRight,
   CircleUserRound,
   ClipboardCheck,
   CreditCard,
   GraduationCap,
   Home,
   IdCard,
+  LoaderCircle,
   LogOut,
-  Menu,
   Settings,
   UsersRound,
 } from "lucide-react";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   type CSSProperties,
@@ -127,6 +128,7 @@ export function PortalShell({
   const path = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   useEffect(
     () => setCollapsed(localStorage.getItem("psc-sidebar") === "collapsed"),
     [],
@@ -143,14 +145,19 @@ export function PortalShell({
     });
   }
   async function logout() {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      headers: {
-        "x-csrf-token": decodeURIComponent(getCookie("psc_csrf") ?? ""),
-      },
-    });
-    router.replace("/login");
-    router.refresh();
+    setSigningOut(true);
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "x-csrf-token": decodeURIComponent(getCookie("psc_csrf") ?? ""),
+        },
+      });
+      router.replace("/login");
+      router.refresh();
+    } catch {
+      setSigningOut(false);
+    }
   }
 
   return (
@@ -161,11 +168,12 @@ export function PortalShell({
           <Brand compact={collapsed} />
           <button
             type="button"
-            className="btn btn-ghost icon-btn"
+            className="sidebar-toggle"
             onClick={toggleSidebar}
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-expanded={!collapsed}
           >
-            {collapsed ? <Menu size={18} /> : <ChevronLeft size={18} />}
+            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
         </div>
         <nav className="sidebar-nav" aria-label={`${role} navigation`}>
@@ -179,6 +187,7 @@ export function PortalShell({
               >
                 <Icon size={19} />
                 <span className="nav-label">{item.label}</span>
+                <NavigationPendingIndicator />
               </Link>
             );
           })}
@@ -194,9 +203,20 @@ export function PortalShell({
               <span>{email}</span>
             </div>
           </div>
-          <button className="sidebar-link" type="button" onClick={logout}>
-            <LogOut size={18} />
-            <span className="nav-label">Sign out</span>
+          <button
+            className="sidebar-link"
+            type="button"
+            onClick={logout}
+            disabled={signingOut}
+          >
+            {signingOut ? (
+              <LoaderCircle className="animate-spin" size={18} />
+            ) : (
+              <LogOut size={18} />
+            )}
+            <span className="nav-label">
+              {signingOut ? "Signing out…" : "Sign out"}
+            </span>
           </button>
         </div>
       </aside>
@@ -224,11 +244,26 @@ export function PortalShell({
             >
               <Icon size={20} />
               <span>{item.label}</span>
+              <NavigationPendingIndicator />
             </Link>
           );
         })}
       </nav>
     </div>
+  );
+}
+
+function NavigationPendingIndicator() {
+  const { pending } = useLinkStatus();
+
+  return (
+    <span
+      className={`nav-pending-indicator ${pending ? "is-pending" : ""}`}
+      aria-hidden={!pending}
+    >
+      <LoaderCircle size={14} />
+      {pending ? <span className="sr-only">Loading</span> : null}
+    </span>
   );
 }
 

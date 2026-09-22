@@ -142,7 +142,6 @@ export default async function AdminDashboard() {
         <div className="panel surface">
           <div className="panel-head">
             <h2>Today’s classes</h2>
-            <span className="pill">Asia/Kolkata</span>
           </div>
           {todayClasses.length ? (
             <div className="compact-list">
