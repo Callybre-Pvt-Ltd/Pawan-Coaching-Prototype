@@ -835,26 +835,9 @@ a {
   cursor: wait;
   opacity: 0.72;
 }
-.nav-pending-indicator {
-  display: inline-grid;
-  flex: 0 0 auto;
-  margin-left: auto;
-  opacity: 0;
-  place-items: center;
-  width: 1rem;
-}
-.nav-pending-indicator.is-pending {
-  opacity: 1;
-}
-.nav-pending-indicator.is-pending svg {
-  animation: spin 700ms linear infinite;
-}
 .sidebar-link:has(.nav-pending-indicator.is-pending) {
   color: var(--text);
   background: var(--accent-soft);
-}
-.sidebar.collapsed .nav-pending-indicator {
-  display: none;
 }
 .sidebar-link.active svg {
   color: var(--primary);
@@ -1259,7 +1242,8 @@ a {
     overflow-wrap: anywhere;
     text-align: center;
   }
-  .mobile-link.active::after {
+  .mobile-link.active::after,
+  .mobile-link:has(.nav-pending-indicator.is-pending)::after {
     position: absolute;
     bottom: 0.2rem;
     width: 1.25rem;
@@ -1275,12 +1259,6 @@ a {
   }
   .mobile-link:has(.nav-pending-indicator.is-pending) {
     color: var(--accent-text);
-  }
-  .mobile-link .nav-pending-indicator {
-    margin: 0;
-    position: absolute;
-    right: calc(50% - 1.45rem);
-    top: 0.68rem;
   }
   .fee-alert {
     align-items: flex-start;
@@ -1758,7 +1736,6 @@ a {
     transform: none;
   }
   .animate-spin,
-  .nav-pending-indicator.is-pending svg,
   .skeleton::after {
     animation: loading-fade 1.35s var(--ease-out) infinite alternate;
   }

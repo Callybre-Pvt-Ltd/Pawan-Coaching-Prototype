@@ -102,7 +102,9 @@ function openMore(role: "admin" | "tutor" | "student") {
   });
   const trigger = within(mobileNav).getByRole("button", { name: "More" });
   fireEvent.click(trigger);
-  const dialog = screen.getByRole("dialog", { name: "More options" });
+  const dialog = screen.getByRole("dialog", {
+    name: "More options",
+  }) as HTMLDialogElement;
   return { dialog, mobileNav, trigger };
 }
 
@@ -256,11 +258,17 @@ describe("PortalShell mobile navigation", () => {
     expect(result.dialog).not.toHaveAttribute("open");
   });
 
-  it("keeps pending feedback visible until navigation commits, then closes", () => {
+  it("highlights pending navigation without a spinner until the route commits", () => {
     mocks.pending = true;
     const view = renderShell("admin");
     const { dialog } = openMore("admin");
     expect(within(dialog).getAllByText("Loading").length).toBeGreaterThan(0);
+    expect(
+      dialog.querySelector(".lucide-loader-circle"),
+    ).not.toBeInTheDocument();
+    expect(
+      dialog.querySelector(".nav-pending-indicator.is-pending"),
+    ).toBeInTheDocument();
 
     mocks.pending = false;
     mocks.pathname = "/admin/tutors";
@@ -273,6 +281,7 @@ describe("PortalShell mobile navigation", () => {
         <p>Page content</p>
       </PortalShell>,
     );
+    finishClosingMore(dialog);
     expect(dialog).not.toHaveAttribute("open");
   });
 });

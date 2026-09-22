@@ -343,6 +343,7 @@ export function PortalShell({
           <span>More</span>
         </button>
       </nav>
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: Escape dismissal is handled by the dialog's native cancel event. */}
       <dialog
         ref={mobileMoreDialog}
         className="mobile-more-dialog"
@@ -442,7 +443,6 @@ function NavigationPendingIndicator() {
       className={`nav-pending-indicator ${pending ? "is-pending" : ""}`}
       aria-hidden={!pending}
     >
-      <LoaderCircle size={14} />
       {pending ? <span className="sr-only">Loading</span> : null}
     </span>
   );
