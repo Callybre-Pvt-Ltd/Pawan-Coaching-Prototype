@@ -15,18 +15,14 @@ import {
   IdCard,
   LoaderCircle,
   LogOut,
+  Menu,
   Settings,
   UsersRound,
+  X,
 } from "lucide-react";
 import Link, { useLinkStatus } from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  type CSSProperties,
-  type ReactNode,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import type { UserRole } from "@/db/schema";
 import { Brand } from "./brand";
 import { ThemeToggle } from "./theme-toggle";
@@ -46,16 +42,26 @@ const iconMap = {
   receipts: CreditCard,
 };
 type IconName = keyof typeof iconMap;
-type Item = { label: string; href: string; icon: IconName; mobile?: boolean };
+type Item = {
+  label: string;
+  href: string;
+  icon: IconName;
+  primaryOnMobile?: boolean;
+};
 
 const navigation: Record<UserRole, Item[]> = {
   admin: [
-    { label: "Home", href: "/admin", icon: "home", mobile: true },
+    {
+      label: "Home",
+      href: "/admin",
+      icon: "home",
+      primaryOnMobile: true,
+    },
     {
       label: "Students",
       href: "/admin/students",
       icon: "students",
-      mobile: true,
+      primaryOnMobile: true,
     },
     { label: "Tutors", href: "/admin/tutors", icon: "tutors" },
     { label: "Batches", href: "/admin/batches", icon: "batches" },
@@ -63,43 +69,68 @@ const navigation: Record<UserRole, Item[]> = {
       label: "Attendance",
       href: "/admin/attendance",
       icon: "attendance",
-      mobile: true,
+      primaryOnMobile: true,
     },
-    { label: "Fees", href: "/admin/fees", icon: "fees", mobile: true },
+    {
+      label: "Fees",
+      href: "/admin/fees",
+      icon: "fees",
+      primaryOnMobile: true,
+    },
     { label: "ID cards", href: "/admin/id-cards", icon: "cards" },
     { label: "Birthdays", href: "/admin/birthdays", icon: "birthdays" },
     { label: "Settings", href: "/admin/settings", icon: "settings" },
   ],
   tutor: [
-    { label: "Home", href: "/tutor", icon: "home", mobile: true },
-    { label: "Batches", href: "/tutor/batches", icon: "batches", mobile: true },
+    {
+      label: "Home",
+      href: "/tutor",
+      icon: "home",
+      primaryOnMobile: true,
+    },
+    {
+      label: "Batches",
+      href: "/tutor/batches",
+      icon: "batches",
+      primaryOnMobile: true,
+    },
     {
       label: "Attendance",
       href: "/tutor/attendance",
       icon: "attendance",
-      mobile: true,
+      primaryOnMobile: true,
     },
     {
       label: "Students",
       href: "/tutor/students",
       icon: "students",
-      mobile: true,
+      primaryOnMobile: true,
     },
   ],
   student: [
-    { label: "Home", href: "/student", icon: "home", mobile: true },
+    {
+      label: "Home",
+      href: "/student",
+      icon: "home",
+      primaryOnMobile: true,
+    },
     {
       label: "Attendance",
       href: "/student/attendance",
       icon: "attendance",
-      mobile: true,
+      primaryOnMobile: true,
     },
-    { label: "Fees", href: "/student/fees", icon: "fees", mobile: true },
+    {
+      label: "Fees",
+      href: "/student/fees",
+      icon: "fees",
+      primaryOnMobile: true,
+    },
     {
       label: "Profile",
       href: "/student/profile",
       icon: "profile",
-      mobile: true,
+      primaryOnMobile: true,
     },
     { label: "Schedule", href: "/student/schedule", icon: "schedule" },
     { label: "ID card", href: "/student/id-card", icon: "cards" },
@@ -129,14 +160,46 @@ export function PortalShell({
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
+  const mobileMoreDialog = useRef<HTMLDialogElement>(null);
+  const mobileMoreTrigger = useRef<HTMLButtonElement>(null);
   useEffect(
     () => setCollapsed(localStorage.getItem("psc-sidebar") === "collapsed"),
     [],
   );
   const items = navigation[role];
-  const mobile = useMemo(() => items.filter((item) => item.mobile), [items]);
+  const primaryMobileItems = useMemo(
+    () => items.filter((item) => item.primaryOnMobile),
+    [items],
+  );
+  const overflowMobileItems = useMemo(
+    () => items.filter((item) => !item.primaryOnMobile),
+    [items],
+  );
   const active = (href: string) =>
     path === href || (href !== `/${role}` && path.startsWith(`${href}/`));
+  const overflowActive = overflowMobileItems.some((item) => active(item.href));
+
+  useEffect(() => {
+    const dialog = mobileMoreDialog.current;
+    if (!dialog) return;
+    if (mobileMoreOpen && !dialog.open) dialog.showModal();
+    if (!mobileMoreOpen && dialog.open) dialog.close();
+  }, [mobileMoreOpen]);
+
+  useEffect(() => {
+    if (path) setMobileMoreOpen(false);
+  }, [path]);
+
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 901px)");
+    const closeOnDesktop = () => {
+      if (desktop.matches) setMobileMoreOpen(false);
+    };
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => desktop.removeEventListener("change", closeOnDesktop);
+  }, []);
+
   function toggleSidebar() {
     setCollapsed((value) => {
       const next = !value;
@@ -153,6 +216,7 @@ export function PortalShell({
           "x-csrf-token": decodeURIComponent(getCookie("psc_csrf") ?? ""),
         },
       });
+      setMobileMoreOpen(false);
       router.replace("/login");
       router.refresh();
     } catch {
@@ -184,6 +248,7 @@ export function PortalShell({
                 key={item.href}
                 href={item.href}
                 className={`sidebar-link ${active(item.href) ? "active" : ""}`}
+                aria-current={active(item.href) ? "page" : undefined}
               >
                 <Icon size={19} />
                 <span className="nav-label">{item.label}</span>
@@ -229,18 +294,15 @@ export function PortalShell({
         </header>
         <main className="portal-main">{children}</main>
       </div>
-      <nav
-        className="mobile-nav"
-        style={{ "--mobile-items": mobile.length } as CSSProperties}
-        aria-label={`${role} mobile navigation`}
-      >
-        {mobile.map((item) => {
+      <nav className="mobile-nav" aria-label={`${role} mobile navigation`}>
+        {primaryMobileItems.map((item) => {
           const Icon = iconMap[item.icon];
           return (
             <Link
               key={item.href}
               href={item.href}
               className={`mobile-link ${active(item.href) ? "active" : ""}`}
+              aria-current={active(item.href) ? "page" : undefined}
             >
               <Icon size={20} />
               <span>{item.label}</span>
@@ -248,7 +310,106 @@ export function PortalShell({
             </Link>
           );
         })}
+        <button
+          ref={mobileMoreTrigger}
+          className={`mobile-link ${mobileMoreOpen || overflowActive ? "active" : ""}`}
+          type="button"
+          onClick={() => setMobileMoreOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={mobileMoreOpen}
+          aria-controls={`mobile-more-${role}`}
+        >
+          <Menu size={20} />
+          <span>More</span>
+        </button>
       </nav>
+      <dialog
+        ref={mobileMoreDialog}
+        className="mobile-more-dialog"
+        id={`mobile-more-${role}`}
+        aria-labelledby={`mobile-more-title-${role}`}
+        onCancel={() => setMobileMoreOpen(false)}
+        onClose={() => {
+          setMobileMoreOpen(false);
+          mobileMoreTrigger.current?.focus();
+        }}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) setMobileMoreOpen(false);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") setMobileMoreOpen(false);
+        }}
+      >
+        <div className="mobile-more-content">
+          <div className="mobile-more-head">
+            <div>
+              <span className="eyebrow">{role} portal</span>
+              <h2 id={`mobile-more-title-${role}`}>More options</h2>
+            </div>
+            <button
+              type="button"
+              className="btn btn-ghost icon-btn"
+              onClick={() => setMobileMoreOpen(false)}
+              aria-label="Close more options"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          {overflowMobileItems.length > 0 ? (
+            <nav
+              className="mobile-more-list"
+              aria-label={`${role} additional navigation`}
+            >
+              {overflowMobileItems.map((item) => {
+                const Icon = iconMap[item.icon];
+                const isActive = active(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`mobile-more-link ${isActive ? "active" : ""}`}
+                    aria-current={isActive ? "page" : undefined}
+                    onClick={() => {
+                      if (isActive) setMobileMoreOpen(false);
+                    }}
+                  >
+                    <span className="metric-icon">
+                      <Icon size={18} />
+                    </span>
+                    <span>{item.label}</span>
+                    <NavigationPendingIndicator />
+                  </Link>
+                );
+              })}
+            </nav>
+          ) : null}
+          <div className="mobile-more-account">
+            <div className="sidebar-user">
+              <span className="avatar">{role.slice(0, 2).toUpperCase()}</span>
+              <div className="sidebar-user-copy">
+                <b>
+                  {role[0]?.toUpperCase()}
+                  {role.slice(1)}
+                </b>
+                <span>{email}</span>
+              </div>
+            </div>
+            <button
+              className="btn btn-secondary mobile-signout"
+              type="button"
+              onClick={logout}
+              disabled={signingOut}
+            >
+              {signingOut ? (
+                <LoaderCircle className="animate-spin" size={18} />
+              ) : (
+                <LogOut size={18} />
+              )}
+              {signingOut ? "Signing out…" : "Sign out"}
+            </button>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }

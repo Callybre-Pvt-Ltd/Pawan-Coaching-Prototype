@@ -181,31 +181,31 @@ a {
   gap: 1.25rem;
 }
 .brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  font-weight: 900;
-  letter-spacing: -0.035em;
+  flex-shrink: 0;
+  line-height: 0;
 }
-.brand-logo-frame {
-  align-items: center;
-  background: #fff8f5;
-  border: 1px solid rgba(18, 18, 18, 0.08);
-  border-radius: 0.7rem;
-  display: flex;
-  height: 4.1rem;
-  justify-content: center;
-  overflow: hidden;
-  padding: 0.18rem;
+.brand-wordmark {
+  display: block;
   width: 8.8rem;
 }
 .brand-logo {
-  height: 100%;
-  object-fit: contain;
+  display: block;
+  height: auto;
   width: 100%;
 }
-.brand-compact .brand-logo-frame {
-  height: 3rem;
-  width: 3.2rem;
+.brand-wordmark-dark {
+  display: none;
+}
+.dark .brand-wordmark-light {
+  display: none;
+}
+.dark .brand-wordmark-dark {
+  display: block;
+}
+.brand-compact .brand-logo-mark {
+  width: 2.75rem;
 }
 .brand-mark {
   display: grid;
@@ -579,17 +579,17 @@ a {
   align-items: center;
   justify-content: center;
   gap: 0.3rem;
-  min-height: 3.25rem;
-  padding: 0.75rem 2.25rem;
-  background: #203469;
-  color: #dbe4ff;
-  font-size: 0.95rem;
+  color: inherit;
+  font-size: 0.9rem;
+  font-weight: 400;
 }
 .footer-powered-by strong {
-  color: #ff8a4c;
+  color: inherit;
+  font-weight: 600;
+  transition: color 160ms ease;
 }
-.footer-powered-by:hover {
-  background: #293f7c;
+.footer-powered-by:hover strong {
+  color: var(--primary);
 }
 .contact-sign-in-short {
   display: none;
@@ -1052,6 +1052,88 @@ a {
 .mobile-nav {
   display: none;
 }
+.mobile-more-dialog {
+  width: 100%;
+  max-width: none;
+  max-height: min(78dvh, 42rem);
+  margin: auto 0 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: 1.25rem 1.25rem 0 0;
+  box-shadow: 0 -24px 70px rgba(18, 18, 18, 0.22);
+}
+.mobile-more-dialog::backdrop {
+  background: rgba(18, 18, 18, 0.52);
+  backdrop-filter: blur(3px);
+}
+.mobile-more-content {
+  max-height: min(78dvh, 42rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.mobile-more-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1rem 0.85rem;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+.mobile-more-head h2 {
+  margin: 0.25rem 0 0;
+  font-size: 1.2rem;
+}
+.mobile-more-list {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+}
+.mobile-more-link {
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.6rem 0.7rem;
+  color: var(--text-muted);
+  border-radius: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  transition:
+    color 140ms ease,
+    background 140ms ease,
+    transform 140ms ease;
+}
+.mobile-more-link:hover,
+.mobile-more-link.active,
+.mobile-more-link:has(.nav-pending-indicator.is-pending) {
+  color: var(--text);
+  background: var(--accent-soft);
+}
+.mobile-more-link:active {
+  transform: scale(0.985);
+}
+.mobile-more-link.active .metric-icon {
+  color: var(--primary);
+}
+.mobile-more-account {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+}
+.mobile-signout {
+  width: 100%;
+}
 @media (max-width: 900px) {
   .hero-grid,
   .contact-panel {
@@ -1084,7 +1166,7 @@ a {
   .mobile-nav {
     position: fixed;
     display: grid;
-    grid-template-columns: repeat(var(--mobile-items, 4), 1fr);
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     z-index: 50;
     bottom: 0;
     left: 0;
@@ -1096,14 +1178,20 @@ a {
     padding-bottom: env(safe-area-inset-bottom);
   }
   .mobile-link {
+    min-width: 0;
+    min-height: 4.25rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.25rem;
     color: var(--text-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
     font-size: 0.62rem;
     font-weight: 750;
+    padding: 0.4rem 0.15rem;
     position: relative;
     transition:
       color 140ms ease,
@@ -1111,6 +1199,12 @@ a {
   }
   .mobile-link.active {
     color: var(--primary);
+  }
+  .mobile-link > span:not(.nav-pending-indicator) {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .mobile-link:active {
     transform: scale(0.96);
@@ -1136,9 +1230,8 @@ a {
     height: 4rem;
     gap: 0.5rem;
   }
-  .landing-nav .brand-logo-frame {
+  .landing-nav .brand-wordmark {
     width: 5.75rem;
-    height: 2.6rem;
   }
   .nav-links {
     flex-shrink: 0;
