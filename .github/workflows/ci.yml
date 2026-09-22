@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+      APP_ORIGINS: http://127.0.0.1:3000,http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.7.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm openapi:check
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test:e2e
+      - run: pnpm build
