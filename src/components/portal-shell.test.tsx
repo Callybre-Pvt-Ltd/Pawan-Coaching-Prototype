@@ -106,6 +106,10 @@ function openMore(role: "admin" | "tutor" | "student") {
   return { dialog, mobileNav, trigger };
 }
 
+function finishClosingMore(dialog: HTMLDialogElement) {
+  fireEvent.transitionEnd(dialog, { propertyName: "opacity" });
+}
+
 describe("PortalShell mobile navigation", () => {
   it("provides a skip link and main landmark", () => {
     renderShell("admin");
@@ -230,21 +234,25 @@ describe("PortalShell mobile navigation", () => {
         name: "Close more options",
       }),
     );
+    finishClosingMore(result.dialog);
     expect(result.dialog).not.toHaveAttribute("open");
     expect(result.trigger).toHaveAttribute("aria-expanded", "false");
     expect(result.trigger).toHaveFocus();
 
     result = openMore("admin");
     fireEvent.click(result.dialog);
+    finishClosingMore(result.dialog);
     expect(result.dialog).not.toHaveAttribute("open");
 
     result = openMore("admin");
     fireEvent(result.dialog, new Event("cancel", { cancelable: true }));
+    finishClosingMore(result.dialog);
     expect(result.dialog).not.toHaveAttribute("open");
 
     result = openMore("admin");
     Object.defineProperty(desktopMedia, "matches", { value: true });
     act(() => desktopListener?.({ matches: true } as MediaQueryListEvent));
+    finishClosingMore(result.dialog);
     expect(result.dialog).not.toHaveAttribute("open");
   });
 

@@ -183,8 +183,21 @@ export function PortalShell({
   useEffect(() => {
     const dialog = mobileMoreDialog.current;
     if (!dialog) return;
-    if (mobileMoreOpen && !dialog.open) dialog.showModal();
-    if (!mobileMoreOpen && dialog.open) dialog.close();
+    if (mobileMoreOpen) {
+      dialog.removeAttribute("data-closing");
+      if (!dialog.open) dialog.showModal();
+      return;
+    }
+    if (!dialog.open) return;
+
+    dialog.dataset.closing = "true";
+    const finishClose = (event: TransitionEvent) => {
+      if (event.target !== dialog || event.propertyName !== "opacity") return;
+      dialog.close();
+      dialog.removeAttribute("data-closing");
+    };
+    dialog.addEventListener("transitionend", finishClose);
+    return () => dialog.removeEventListener("transitionend", finishClose);
   }, [mobileMoreOpen]);
 
   useEffect(() => {
@@ -335,16 +348,16 @@ export function PortalShell({
         className="mobile-more-dialog"
         id={`mobile-more-${role}`}
         aria-labelledby={`mobile-more-title-${role}`}
-        onCancel={() => setMobileMoreOpen(false)}
+        onCancel={(event) => {
+          event.preventDefault();
+          setMobileMoreOpen(false);
+        }}
         onClose={() => {
           setMobileMoreOpen(false);
           mobileMoreTrigger.current?.focus();
         }}
         onClick={(event) => {
           if (event.target === event.currentTarget) setMobileMoreOpen(false);
-        }}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") setMobileMoreOpen(false);
         }}
       >
         <div className="mobile-more-content">
