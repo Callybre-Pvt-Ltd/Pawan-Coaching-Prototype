@@ -5,6 +5,7 @@ import {
   GraduationCap,
   UsersRound,
 } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { EmptyState, MetricCard, PageTitle } from "@/components/dashboard-ui";
 import { getDb } from "@/db";
@@ -113,7 +114,7 @@ export default async function AdminDashboard() {
     <>
       <PageTitle
         eyebrow="Operations overview"
-        title="Good morning"
+        title="Center overview"
         description="Here’s what is happening across the coaching center today."
       />
       <section className="metric-grid">
@@ -164,43 +165,61 @@ export default async function AdminDashboard() {
             />
           )}
         </div>
-        <div className="panel surface">
-          <div className="panel-head">
-            <h2>Upcoming birthdays</h2>
-            <span className="pill">Next 7 days</span>
-          </div>
-          {upcomingBirthdays.length ? (
-            <div className="compact-list">
-              {upcomingBirthdays.map((person) => (
-                <article key={`${person.name}-${person.dob}`}>
-                  <b>{person.name}</b>
-                  <span>
-                    {person.next === today ? "Today" : person.next.slice(5)}
-                    {person.status === "inactive" ? " · Inactive" : ""}
-                  </span>
-                </article>
-              ))}
+        <div className="dashboard-side-stack">
+          <section
+            className="panel surface"
+            aria-labelledby="upcoming-birthdays"
+          >
+            <div className="panel-head">
+              <h2 id="upcoming-birthdays">Upcoming birthdays</h2>
+              <span className="pill">Next 7 days</span>
             </div>
-          ) : (
-            <EmptyState
-              title="No upcoming birthdays"
-              description="No birthdays fall in the next seven days."
-            />
-          )}
-          <div style={{ marginTop: 12 }}>
-            <EmptyState
-              title={
-                overdue?.value
-                  ? `${overdue.value} overdue fee${overdue.value === 1 ? "" : "s"}`
-                  : "No fee alerts"
-              }
-              description={
-                overdue?.value
-                  ? "Open Fees to review overdue student dues."
-                  : "There are no overdue fees today."
-              }
-            />
-          </div>
+            {upcomingBirthdays.length ? (
+              <div className="compact-list">
+                {upcomingBirthdays.map((person) => (
+                  <article key={`${person.name}-${person.dob}`}>
+                    <b>{person.name}</b>
+                    <span>
+                      {person.next === today ? "Today" : person.next.slice(5)}
+                      {person.status === "inactive" ? " · Inactive" : ""}
+                    </span>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                title="No upcoming birthdays"
+                description="No birthdays fall in the next seven days."
+              />
+            )}
+          </section>
+          <section className="panel surface" aria-labelledby="fee-alerts">
+            <div className="panel-head">
+              <h2 id="fee-alerts">Fee alerts</h2>
+            </div>
+            <div className="fee-alert">
+              <span className="metric-icon" aria-hidden="true">
+                <BadgeIndianRupee size={18} />
+              </span>
+              <div className="fee-alert-copy">
+                <b>
+                  {overdue?.value
+                    ? `${overdue.value} overdue fee${overdue.value === 1 ? "" : "s"}`
+                    : "No fee alerts"}
+                </b>
+                <span>
+                  {overdue?.value
+                    ? "Review overdue student dues before the next class."
+                    : "There are no overdue fees today."}
+                </span>
+              </div>
+              {overdue?.value ? (
+                <Link className="btn btn-secondary" href="/admin/fees">
+                  Review fees
+                </Link>
+              ) : null}
+            </div>
+          </section>
         </div>
       </section>
     </>

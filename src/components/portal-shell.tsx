@@ -226,6 +226,9 @@ export function PortalShell({
 
   return (
     <div className="portal">
+      <a className="skip-link" href="#portal-main">
+        Skip to content
+      </a>
       <SessionExpiryWarning expiresAt={expiresAt} />
       <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
         <div className="sidebar-head">
@@ -251,7 +254,9 @@ export function PortalShell({
                 aria-current={active(item.href) ? "page" : undefined}
               >
                 <Icon size={19} />
-                <span className="nav-label">{item.label}</span>
+                <span className={`nav-label ${collapsed ? "sr-only" : ""}`}>
+                  {item.label}
+                </span>
                 <NavigationPendingIndicator />
               </Link>
             );
@@ -279,7 +284,7 @@ export function PortalShell({
             ) : (
               <LogOut size={18} />
             )}
-            <span className="nav-label">
+            <span className={`nav-label ${collapsed ? "sr-only" : ""}`}>
               {signingOut ? "Signing out…" : "Sign out"}
             </span>
           </button>
@@ -292,7 +297,9 @@ export function PortalShell({
           </div>
           <ThemeToggle />
         </header>
-        <main className="portal-main">{children}</main>
+        <main className="portal-main" id="portal-main">
+          {children}
+        </main>
       </div>
       <nav className="mobile-nav" aria-label={`${role} mobile navigation`}>
         {primaryMobileItems.map((item) => {

@@ -107,6 +107,45 @@ function openMore(role: "admin" | "tutor" | "student") {
 }
 
 describe("PortalShell mobile navigation", () => {
+  it("provides a skip link and main landmark", () => {
+    renderShell("admin");
+
+    expect(
+      screen.getByRole("link", { name: "Skip to content" }),
+    ).toHaveAttribute("href", "#portal-main");
+    expect(screen.getByRole("main")).toHaveAttribute("id", "portal-main");
+  });
+
+  it("keeps collapsed navigation labels available to assistive technology", () => {
+    renderShell("admin");
+    fireEvent.click(screen.getByRole("button", { name: "Collapse sidebar" }));
+
+    const desktopNav = screen.getByRole("navigation", {
+      name: "admin navigation",
+    });
+    expect(
+      within(desktopNav).getByRole("link", { name: "Home" }),
+    ).toHaveTextContent("Home");
+    expect(within(desktopNav).getByText("Home")).toHaveClass("sr-only");
+    expect(screen.getByRole("button", { name: "Sign out" })).toHaveTextContent(
+      "Sign out",
+    );
+  });
+
+  it("keeps active mobile destinations programmatically marked", () => {
+    renderShell("admin");
+
+    const mobileNav = screen.getByRole("navigation", {
+      name: "admin mobile navigation",
+    });
+    expect(within(mobileNav).getByRole("link", { name: "Home" })).toHaveClass(
+      "active",
+    );
+    expect(
+      within(mobileNav).getByRole("link", { name: "Home" }),
+    ).toHaveAttribute("aria-current", "page");
+  });
+
   it("shows four primary Admin links and all remaining options in More", () => {
     renderShell("admin");
     const { dialog, mobileNav } = openMore("admin");

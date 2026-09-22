@@ -3,6 +3,20 @@
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
+function switchThemeWithoutTransitions(next: boolean) {
+  const style = document.createElement("style");
+  style.dataset.themeTransitionOverride = "true";
+  style.textContent = "*,*::before,*::after{transition:none !important}";
+  document.head.append(style);
+
+  document.documentElement.classList.toggle("dark", next);
+  void document.body.offsetHeight;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => style.remove());
+  });
+}
+
 export function ThemeToggle() {
   const [dark, setDark] = useState(false);
   useEffect(
@@ -12,7 +26,7 @@ export function ThemeToggle() {
 
   function toggle() {
     const next = !dark;
-    document.documentElement.classList.toggle("dark", next);
+    switchThemeWithoutTransitions(next);
     localStorage.setItem("psc-theme", next ? "dark" : "light");
     setDark(next);
   }
