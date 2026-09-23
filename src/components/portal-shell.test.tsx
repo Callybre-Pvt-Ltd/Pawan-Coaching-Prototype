@@ -198,17 +198,18 @@ describe("PortalShell mobile navigation", () => {
     ).toEqual(["Schedule", "ID card"]);
   });
 
-  it("keeps account actions in Tutor More when there are no overflow links", () => {
+  it("puts the Tutor Profile link in More", () => {
     mocks.pathname = "/tutor";
     renderShell("tutor", "teacher@example.com");
     const { dialog, mobileNav } = openMore("tutor");
 
     expect(within(mobileNav).getAllByRole("link")).toHaveLength(4);
+    const additionalNav = within(dialog).getByRole("navigation", {
+      name: "tutor additional navigation",
+    });
     expect(
-      within(dialog).queryByRole("navigation", {
-        name: "tutor additional navigation",
-      }),
-    ).toBeNull();
+      within(additionalNav).getByRole("link", { name: "Profile" }),
+    ).toHaveAttribute("href", "/tutor/profile");
     expect(within(dialog).getByText("teacher@example.com")).toBeVisible();
     expect(
       within(dialog).getByRole("button", { name: "Sign out" }),

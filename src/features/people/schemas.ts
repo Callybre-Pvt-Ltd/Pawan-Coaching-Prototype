@@ -14,6 +14,17 @@ const dateOfBirth = v.pipe(
     "Date of birth must be in the past.",
   ),
 );
+const subject = v.pipe(v.string(), v.trim(), v.minLength(2), v.maxLength(120));
+export const tutorSubjectsSchema = v.pipe(
+  v.array(subject),
+  v.minLength(1, "Add at least one subject."),
+  v.check(
+    (subjects) =>
+      new Set(subjects.map((item) => item.toLowerCase())).size ===
+      subjects.length,
+    "Each subject can be added only once.",
+  ),
+);
 
 export const studentCreateSchema = v.object({
   name: v.pipe(v.string(), v.trim(), v.minLength(2), v.maxLength(140)),
@@ -31,6 +42,15 @@ export const tutorCreateSchema = v.object({
   password: passwordSchema,
   dob: dateOfBirth,
   contactPhone: indianPhone,
+  subjects: tutorSubjectsSchema,
+});
+
+export const tutorUpdateSchema = v.object({
+  name: v.pipe(v.string(), v.trim(), v.minLength(2), v.maxLength(140)),
+  email: v.pipe(v.string(), v.trim(), v.email(), v.maxLength(320)),
+  dob: dateOfBirth,
+  contactPhone: indianPhone,
+  subjects: tutorSubjectsSchema,
 });
 
 export function normalizeIndianPhone(value: string | undefined) {

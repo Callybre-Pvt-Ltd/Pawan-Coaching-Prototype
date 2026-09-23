@@ -1,4 +1,5 @@
 import { asc, eq } from "drizzle-orm";
+import Link from "next/link";
 import { EmptyState, PageTitle } from "@/components/dashboard-ui";
 import { getDb } from "@/db";
 import { tutors, users } from "@/db/schema";
@@ -14,6 +15,7 @@ export default async function Page() {
       name: tutors.name,
       dob: tutors.dob,
       phone: tutors.contactPhone,
+      subjects: tutors.subjects,
       email: users.email,
       status: users.status,
     })
@@ -42,8 +44,12 @@ export default async function Page() {
                 <tr>
                   <th>Tutor</th>
                   <th>Contact</th>
+                  <th>Subjects</th>
                   <th>Date of birth</th>
                   <th>Status</th>
+                  <th>
+                    <span className="sr-only">Action</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -57,6 +63,11 @@ export default async function Page() {
                       {tutor.email}
                       <small>{tutor.phone}</small>
                     </td>
+                    <td>
+                      {tutor.subjects.length
+                        ? tutor.subjects.join(", ")
+                        : "Not specified"}
+                    </td>
                     <td>{formatIndianDate(tutor.dob)}</td>
                     <td>
                       <span
@@ -64,6 +75,14 @@ export default async function Page() {
                       >
                         {tutor.status}
                       </span>
+                    </td>
+                    <td>
+                      <Link
+                        className="btn btn-ghost"
+                        href={`/admin/tutors/${tutor.id}/edit`}
+                      >
+                        Edit
+                      </Link>
                     </td>
                   </tr>
                 ))}

@@ -1,5 +1,6 @@
 import { stdin, stdout } from "node:process";
 import { createInterface } from "node:readline/promises";
+import * as v from "valibot";
 import { closeDb, getDb } from "../src/db";
 import { users } from "../src/db/schema";
 import { hashPassword } from "../src/features/auth/password";
@@ -7,6 +8,7 @@ import {
   createStudent,
   createTutor,
 } from "../src/features/people/create-person";
+import { tutorSubjectsSchema } from "../src/features/people/schemas";
 
 for (const envFile of [".env", ".env.local"]) {
   try {
@@ -89,8 +91,24 @@ async function main() {
       )
     ).trim();
     if (role === "tutor") {
+      const rawSubjects = (
+        await details.question("Subjects (comma-separated): ")
+      )
+        .split(",")
+        .map((subject) => subject.trim())
+        .filter(Boolean);
+      const parsedSubjects = v.safeParse(tutorSubjectsSchema, rawSubjects);
+      if (!parsedSubjects.success)
+        throw new Error("Add distinct subject names of 2 to 120 characters.");
       const result = await db.transaction((tx) =>
-        createTutor(tx, { email, password, name, dob, contactPhone }),
+        createTutor(tx, {
+          email,
+          password,
+          name,
+          dob,
+          contactPhone,
+          subjects: parsedSubjects.output,
+        }),
       );
       stdout.write(`Created Tutor ${result.tutorCode}.\n`);
       return;

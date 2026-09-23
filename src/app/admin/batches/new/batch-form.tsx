@@ -1,8 +1,9 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { Info, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { Checkbox } from "@/components/checkbox";
 
 type TutorOption = { id: string; name: string; code: string };
 type Slot = {
@@ -32,6 +33,7 @@ export function BatchForm({ tutors }: { tutors: TutorOption[] }) {
   const [slots, setSlots] = useState<Slot[]>([emptySlot()]);
   const [feedback, setFeedback] = useState("");
   const [busy, setBusy] = useState(false);
+  const [capacityHelpOpen, setCapacityHelpOpen] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -74,28 +76,53 @@ export function BatchForm({ tutors }: { tutors: TutorOption[] }) {
   return (
     <form className="panel surface form-stack" onSubmit={submit}>
       <div className="form-grid">
-        <label>
+        <label className="field">
           Batch name
-          <input name="name" required maxLength={120} />
+          <input className="input" name="name" required maxLength={120} />
         </label>
-        <label>
+        <label className="field">
           Subject
-          <input name="subject" required maxLength={120} />
+          <input className="input" name="subject" required maxLength={120} />
         </label>
-        <label>
+        <label className="field">
           Start date
-          <input name="startDate" type="date" required />
+          <input className="input" name="startDate" type="date" required />
         </label>
-        <label>
+        <label className="field">
           End date (optional)
-          <input name="endDate" type="date" />
+          <input className="input" name="endDate" type="date" />
         </label>
-        <label>
-          Warning capacity (optional)
-          <input name="capacity" type="number" min={1} inputMode="numeric" />
-        </label>
+        <div className="field form-field-with-help">
+          <div className="field-label-row">
+            <label htmlFor="capacity">Warning capacity (optional)</label>
+            <button
+              aria-controls="capacity-help"
+              aria-expanded={capacityHelpOpen}
+              aria-label="What is warning capacity?"
+              className="info-button"
+              onClick={() => setCapacityHelpOpen((open) => !open)}
+              type="button"
+            >
+              <Info aria-hidden="true" size={15} />
+            </button>
+          </div>
+          {capacityHelpOpen ? (
+            <p className="field-help" id="capacity-help">
+              Sets the number of active students at which enrollment shows a
+              warning. It does not stop additional enrollments.
+            </p>
+          ) : null}
+          <input
+            className="input"
+            id="capacity"
+            name="capacity"
+            type="number"
+            min={1}
+            inputMode="numeric"
+          />
+        </div>
       </div>
-      <div className="panel-head">
+      <div className="panel-head schedule-header">
         <div>
           <h2>Weekly schedule</h2>
           <p>Adjacent slots are allowed. Times use 15-minute increments.</p>
@@ -111,10 +138,11 @@ export function BatchForm({ tutors }: { tutors: TutorOption[] }) {
       {slots.map((slot, index) => (
         <fieldset className="slot-editor" key={`${index}-${slot.weekday}`}>
           <legend>Slot {index + 1}</legend>
-          <div className="form-grid">
-            <label>
+          <div className="form-grid slot-fields">
+            <label className="field">
               Day
               <select
+                className="input"
                 value={slot.weekday}
                 onChange={(event) =>
                   updateSlot(index, { weekday: event.target.value })
@@ -136,9 +164,10 @@ export function BatchForm({ tutors }: { tutors: TutorOption[] }) {
                 ))}
               </select>
             </label>
-            <label>
+            <label className="field">
               Starts
               <input
+                className="input"
                 type="time"
                 step={900}
                 value={slot.startTime}
@@ -147,9 +176,10 @@ export function BatchForm({ tutors }: { tutors: TutorOption[] }) {
                 }
               />
             </label>
-            <label>
+            <label className="field">
               Ends
               <input
+                className="input"
                 type="time"
                 step={900}
                 value={slot.endTime}
@@ -162,20 +192,23 @@ export function BatchForm({ tutors }: { tutors: TutorOption[] }) {
           <fieldset className="checkbox-grid">
             <legend className="sr-only">Tutors for slot {index + 1}</legend>
             {tutors.map((tutor) => (
-              <label className="check-row" key={tutor.id}>
-                <input
-                  type="checkbox"
-                  checked={slot.tutorIds.includes(tutor.id)}
-                  onChange={(event) =>
-                    updateSlot(index, {
-                      tutorIds: event.target.checked
-                        ? [...slot.tutorIds, tutor.id]
-                        : slot.tutorIds.filter((id) => id !== tutor.id),
-                    })
-                  }
-                />
-                {tutor.name} <small>{tutor.code}</small>
-              </label>
+              <Checkbox
+                key={tutor.id}
+                name="tutorIds"
+                value={tutor.id}
+                variant="card"
+                checked={slot.tutorIds.includes(tutor.id)}
+                onChange={(event) =>
+                  updateSlot(index, {
+                    tutorIds: event.target.checked
+                      ? [...slot.tutorIds, tutor.id]
+                      : slot.tutorIds.filter((id) => id !== tutor.id),
+                  })
+                }
+              >
+                <b>{tutor.name}</b>
+                <small>{tutor.code}</small>
+              </Checkbox>
             ))}
           </fieldset>
           {slots.length > 1 ? (

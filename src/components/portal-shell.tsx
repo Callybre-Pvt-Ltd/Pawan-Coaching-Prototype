@@ -107,6 +107,11 @@ const navigation: Record<UserRole, Item[]> = {
       icon: "students",
       primaryOnMobile: true,
     },
+    {
+      label: "Profile",
+      href: "/tutor/profile",
+      icon: "profile",
+    },
   ],
   student: [
     {

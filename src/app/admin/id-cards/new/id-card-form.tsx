@@ -52,9 +52,9 @@ export function IdCardForm({ people }: { people: Person[] }) {
   return (
     <form className="panel surface form-stack" onSubmit={submit}>
       <div className="form-grid">
-        <label>
+        <label className="field">
           Student or tutor
-          <select name="userId" required defaultValue="">
+          <select className="input" name="userId" required defaultValue="">
             <option value="" disabled>
               Choose a person
             </option>
@@ -65,13 +65,13 @@ export function IdCardForm({ people }: { people: Person[] }) {
             ))}
           </select>
         </label>
-        <label>
+        <label className="field">
           Issue date
-          <input name="issueDate" type="date" required />
+          <input className="input" name="issueDate" type="date" required />
         </label>
-        <label>
+        <label className="field">
           Expiry date
-          <input name="expiryDate" type="date" required />
+          <input className="input" name="expiryDate" type="date" required />
         </label>
       </div>
       {error ? (

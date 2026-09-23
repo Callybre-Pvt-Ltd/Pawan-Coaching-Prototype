@@ -3,6 +3,7 @@
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { Checkbox } from "@/components/checkbox";
 
 type Problem = { detail?: string };
 
@@ -83,9 +84,7 @@ export function LoginForm() {
           </button>
         </div>
       </div>
-      <label className="check-row">
-        <input type="checkbox" name="rememberMe" /> Remember me on this browser
-      </label>
+      <Checkbox name="rememberMe">Remember me on this browser</Checkbox>
       {error && (
         <p className="field-error" role="alert">
           {error}

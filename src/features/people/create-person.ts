@@ -71,6 +71,7 @@ export async function createTutor(
     password: string;
     dob: string;
     contactPhone: string;
+    subjects: string[];
   },
 ) {
   const code = await nextCode(tx, "tutor");
@@ -90,6 +91,7 @@ export async function createTutor(
       name: input.name,
       dob: input.dob,
       contactPhone: normalizeIndianPhone(input.contactPhone) ?? "",
+      subjects: input.subjects,
     })
     .returning();
   return tutor;

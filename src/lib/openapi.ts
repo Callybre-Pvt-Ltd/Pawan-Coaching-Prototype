@@ -115,6 +115,18 @@ export const openApiDocument = {
         },
       },
     },
+    "/api/tutors/{id}": {
+      patch: {
+        tags: ["People"],
+        summary: "Update a tutor account and profile",
+        security: [{ sessionCookie: [], csrfToken: [] }],
+        responses: {
+          "200": { description: "Tutor updated" },
+          "404": { $ref: "#/components/responses/Problem" },
+          "409": { $ref: "#/components/responses/Problem" },
+        },
+      },
+    },
     "/api/batches": {
       get: {
         tags: ["Batches"],

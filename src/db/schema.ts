@@ -135,6 +135,7 @@ export const tutors = pgTable(
     name: varchar("name", { length: 140 }).notNull(),
     dob: date("dob", { mode: "string" }).notNull(),
     contactPhone: varchar("contact_phone", { length: 16 }).notNull(),
+    subjects: jsonb("subjects").$type<string[]>().notNull().default([]),
     ...auditColumns,
   },
   (table) => [
