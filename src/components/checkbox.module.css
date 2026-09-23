@@ -1,0 +1,147 @@
+.checkbox {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.surface {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.indicator {
+  display: grid;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: 0 0 1.25rem;
+  place-items: center;
+  border: 1.5px solid var(--border);
+  border-radius: 0.35rem;
+  color: transparent;
+  background: var(--surface);
+  transition-duration: 150ms;
+  transition-property: background-color, border-color, color;
+}
+
+.indicator svg {
+  opacity: 0;
+  scale: 0.25;
+  filter: blur(4px);
+  transition:
+    opacity 150ms cubic-bezier(0.2, 0, 0, 1),
+    scale 150ms cubic-bezier(0.2, 0, 0, 1),
+    filter 150ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.content {
+  min-width: 0;
+  line-height: 1.4;
+}
+
+.input:checked + .surface .indicator {
+  border-color: var(--primary);
+  color: #fff;
+  background: var(--primary);
+}
+
+.input:checked + .surface .indicator svg {
+  opacity: 1;
+  scale: 1;
+  filter: blur(0);
+}
+
+.input:focus-visible + .surface {
+  outline: 3px solid color-mix(in srgb, var(--primary) 25%, transparent);
+  outline-offset: 3px;
+}
+
+.input:disabled {
+  cursor: not-allowed;
+}
+
+.input:disabled + .surface {
+  opacity: 0.55;
+}
+
+.inline .surface {
+  min-height: 2.5rem;
+  border-radius: 0.5rem;
+}
+
+.card {
+  display: block;
+}
+
+.card .surface {
+  min-height: 3.5rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface-raised);
+  transition-duration: 150ms;
+  transition-property: background-color, border-color, box-shadow;
+}
+
+.card .content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.55rem;
+}
+
+.card .content b {
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 750;
+}
+
+.card .content small {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.card .input:checked + .surface {
+  border-color: var(--primary);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+@media (hover: hover) {
+  .checkbox:hover .indicator,
+  .card:hover .surface {
+    border-color: var(--primary);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .indicator,
+  .indicator svg,
+  .card .surface {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .input:checked + .surface .indicator {
+    color: CanvasText;
+    background: Canvas;
+  }
+}

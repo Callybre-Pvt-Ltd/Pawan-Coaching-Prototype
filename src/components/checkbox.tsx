@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import type { InputHTMLAttributes, ReactNode } from "react";
+import styles from "./checkbox.module.css";
 
 type CheckboxProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -16,14 +17,18 @@ export function Checkbox({
   variant = "inline",
   ...inputProps
 }: CheckboxProps) {
+  const rootClassName = [styles.checkbox, styles[variant], className]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <label className={`checkbox checkbox-${variant} ${className ?? ""}`}>
-      <input {...inputProps} className="checkbox-input" type="checkbox" />
-      <span className="checkbox-surface">
-        <span className="checkbox-indicator" aria-hidden="true">
+    <label className={rootClassName}>
+      <input {...inputProps} className={styles.input} type="checkbox" />
+      <span className={styles.surface}>
+        <span className={styles.indicator} aria-hidden="true">
           <Check size={14} strokeWidth={2.5} />
         </span>
-        <span className="checkbox-content">{children}</span>
+        <span className={styles.content}>{children}</span>
       </span>
     </label>
   );

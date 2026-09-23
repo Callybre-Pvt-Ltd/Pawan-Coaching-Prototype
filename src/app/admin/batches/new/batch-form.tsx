@@ -1,9 +1,10 @@
 "use client";
 
-import { Info, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 import { Checkbox } from "@/components/checkbox";
+import { InfoTooltip } from "@/components/info-tooltip";
 
 type TutorOption = { id: string; name: string; code: string };
 type Slot = {
@@ -33,7 +34,6 @@ export function BatchForm({ tutors }: { tutors: TutorOption[] }) {
   const [slots, setSlots] = useState<Slot[]>([emptySlot()]);
   const [feedback, setFeedback] = useState("");
   const [busy, setBusy] = useState(false);
-  const [capacityHelpOpen, setCapacityHelpOpen] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -95,23 +95,11 @@ export function BatchForm({ tutors }: { tutors: TutorOption[] }) {
         <div className="field form-field-with-help">
           <div className="field-label-row">
             <label htmlFor="capacity">Warning capacity (optional)</label>
-            <button
-              aria-controls="capacity-help"
-              aria-expanded={capacityHelpOpen}
-              aria-label="What is warning capacity?"
-              className="info-button"
-              onClick={() => setCapacityHelpOpen((open) => !open)}
-              type="button"
-            >
-              <Info aria-hidden="true" size={15} />
-            </button>
-          </div>
-          {capacityHelpOpen ? (
-            <p className="field-help" id="capacity-help">
+            <InfoTooltip id="capacity-help" label="About warning capacity">
               Sets the number of active students at which enrollment shows a
               warning. It does not stop additional enrollments.
-            </p>
-          ) : null}
+            </InfoTooltip>
+          </div>
           <input
             className="input"
             id="capacity"

@@ -30,13 +30,16 @@ describe("BatchForm", () => {
     expect(screen.getByLabelText("Day").closest(".slot-fields")).not.toBeNull();
   });
 
-  it("reveals capacity guidance and supports adding and removing slots", () => {
+  it("exposes capacity guidance as a tooltip and supports slot changes", () => {
     render(<BatchForm tutors={tutors} />);
 
-    fireEvent.click(
-      screen.getByRole("button", { name: "What is warning capacity?" }),
+    const help = screen.getByRole("button", {
+      name: "About warning capacity",
+    });
+    expect(help).toHaveAttribute("aria-describedby", "capacity-help");
+    expect(screen.getByRole("tooltip")).toHaveTextContent(
+      "Sets the number of active students at which enrollment shows a warning.",
     );
-    expect(document.getElementById("capacity-help")).toBeVisible();
 
     fireEvent.click(screen.getByRole("button", { name: "Add slot" }));
     expect(screen.getByText("Slot 2")).toBeVisible();

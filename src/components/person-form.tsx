@@ -3,6 +3,7 @@
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import styles from "./person-form.module.css";
 
 type TutorProfile = {
   id: string;
@@ -167,7 +168,7 @@ export function PersonForm({
           <p>Add every subject this tutor is qualified to teach.</p>
           <div className="field">
             <label htmlFor="subjectEntry">Subject</label>
-            <div className="subject-entry">
+            <div className={styles.subjectEntry}>
               <input
                 className="input"
                 id="subjectEntry"
@@ -189,7 +190,7 @@ export function PersonForm({
                 Add subject
               </button>
             </div>
-            <ul className="subject-chips" aria-label="Selected subjects">
+            <ul className={styles.subjectChips} aria-label="Selected subjects">
               {subjects.map((subject) => (
                 <li key={subject.toLowerCase()}>
                   {subject}
