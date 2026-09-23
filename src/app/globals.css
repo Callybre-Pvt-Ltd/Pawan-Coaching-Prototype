@@ -1520,9 +1520,10 @@ a {
   border-radius: 1.25rem;
   box-shadow: var(--shadow);
   color: var(--text);
-  max-height: min(90dvh, 44rem);
-  max-width: min(100% - 2rem, 31rem);
+  margin: auto;
+  max-height: calc(100dvh - 2rem);
   padding: 0;
+  width: min(calc(100vw - 2rem), 31rem);
 }
 
 .id-card-dialog::backdrop {
@@ -1531,21 +1532,28 @@ a {
 }
 
 .id-card-dialog-content {
-  max-height: min(90dvh, 44rem);
+  max-height: calc(100dvh - 2rem);
   overflow-y: auto;
-  padding: 1rem;
+  padding: 1.25rem;
 }
 
 .id-card-dialog-head {
   align-items: center;
+  border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.75rem;
+  margin: -1.25rem -1.25rem 1.25rem;
+  padding: 0.85rem 1.25rem;
 }
 
 .id-card-dialog-head h2 {
   font-size: 1rem;
   margin: 0;
+}
+
+.id-card-dialog .id-card-preview {
+  min-height: 0;
+  width: 100%;
 }
 
 @media (max-width: 680px) {
