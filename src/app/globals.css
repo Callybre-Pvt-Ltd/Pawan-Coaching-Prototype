@@ -1514,6 +1514,40 @@ a {
   transform: translate(-50%, -50%) rotate(-18deg);
 }
 
+.id-card-dialog {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow);
+  color: var(--text);
+  max-height: min(90dvh, 44rem);
+  max-width: min(100% - 2rem, 31rem);
+  padding: 0;
+}
+
+.id-card-dialog::backdrop {
+  background: rgba(18, 18, 18, 0.52);
+  backdrop-filter: blur(3px);
+}
+
+.id-card-dialog-content {
+  max-height: min(90dvh, 44rem);
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.id-card-dialog-head {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.id-card-dialog-head h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
 @media (max-width: 680px) {
   .detail-grid {
     grid-template-columns: 1fr;

@@ -4,7 +4,7 @@ import { getDb } from "@/db";
 import { idCards, students, tutors, users } from "@/db/schema";
 import { indiaDate } from "@/features/attendance/dates";
 import { requireRole } from "@/features/auth/guards";
-import { formatIndianDate } from "@/lib/utils";
+import { IdCardList } from "./id-card-list";
 
 export default async function Page() {
   await requireRole("admin");
@@ -37,48 +37,18 @@ export default async function Page() {
             description="Issue a card with an Admin-selected issue and later expiry date."
           />
         ) : (
-          <div className="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Person</th>
-                  <th>Role</th>
-                  <th>Issued</th>
-                  <th>Expires</th>
-                  <th>Card state</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map(({ card, name, code, role, accountStatus }) => {
-                  const expired = card.expiryDate < today;
-                  const state =
-                    accountStatus === "inactive"
-                      ? "Inactive"
-                      : expired
-                        ? "Expired"
-                        : "Current";
-                  return (
-                    <tr key={card.id}>
-                      <td>
-                        <b>{name}</b>
-                        <small>{code}</small>
-                      </td>
-                      <td>{role}</td>
-                      <td>{formatIndianDate(card.issueDate)}</td>
-                      <td>{formatIndianDate(card.expiryDate)}</td>
-                      <td>
-                        <span
-                          className={`pill ${state !== "Current" ? "danger-pill" : ""}`}
-                        >
-                          {state}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <IdCardList
+            cards={rows.map(({ card, name, code, role, accountStatus }) => ({
+              id: card.id,
+              name,
+              code,
+              role,
+              issueDate: card.issueDate,
+              expiryDate: card.expiryDate,
+              inactive: accountStatus === "inactive",
+              expired: card.expiryDate < today,
+            }))}
+          />
         )}
       </section>
     </>

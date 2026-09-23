@@ -1,11 +1,10 @@
 import { eq } from "drizzle-orm";
-import { Brand } from "@/components/brand";
 import { PageTitle } from "@/components/dashboard-ui";
+import { IdCardPreview } from "@/components/id-card-preview";
 import { getDb } from "@/db";
 import { idCards, students, users } from "@/db/schema";
 import { indiaDate } from "@/features/attendance/dates";
 import { requireRole } from "@/features/auth/guards";
-import { formatIndianDate, initials } from "@/lib/utils";
 
 export default async function Page() {
   const auth = await requireRole("student");
@@ -30,26 +29,15 @@ export default async function Page() {
       />
       <section className="panel surface">
         {row?.card ? (
-          <article className="id-card-preview">
-            <div className="id-card-head">
-              <Brand compact />
-              <span>Student</span>
-            </div>
-            <div className="id-avatar">{initials(row.name)}</div>
-            <h2>{row.name}</h2>
-            <p>{row.code}</p>
-            <dl>
-              <dt>Issued</dt>
-              <dd>{formatIndianDate(row.card.issueDate)}</dd>
-              <dt>Expires</dt>
-              <dd>{formatIndianDate(row.card.expiryDate)}</dd>
-            </dl>
-            {expired || row.status === "inactive" ? (
-              <div className="card-watermark">
-                {row.status === "inactive" ? "Inactive" : "Expired"}
-              </div>
-            ) : null}
-          </article>
+          <IdCardPreview
+            name={row.name}
+            code={row.code}
+            personRole="student"
+            issueDate={row.card.issueDate}
+            expiryDate={row.card.expiryDate}
+            inactive={row.status === "inactive"}
+            expired={expired}
+          />
         ) : (
           <p className="empty-copy">
             An Admin has not issued your ID card yet.
