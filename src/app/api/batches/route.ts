@@ -1,11 +1,13 @@
-import { asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import * as v from "valibot";
 import { getDb } from "@/db";
 import {
+  batchEnrollments,
   batches,
   batchScheduleSlots,
   scheduleSlotTutors,
+  students,
   tutors,
 } from "@/db/schema";
 import { verifyMutationRequest } from "@/features/auth/guards";
@@ -19,11 +21,77 @@ import { problem } from "@/lib/problem";
 export async function GET() {
   const session = await getSession();
   if (!session) return problem(401, "Unauthenticated", "Sign in to continue.");
-  const rows = await getDb()
-    .select()
-    .from(batches)
-    .orderBy(asc(batches.name))
-    .limit(25);
+  const db = getDb();
+  const rows = await (async () => {
+    if (session.user.role === "admin")
+      return db.select().from(batches).orderBy(asc(batches.name)).limit(25);
+    if (session.user.role === "tutor") {
+      const [tutor] = await db
+        .select({ id: tutors.id })
+        .from(tutors)
+        .where(eq(tutors.userId, session.user.id));
+      return tutor
+        ? await (async () => {
+            const assigned = await db
+              .selectDistinct({ batchId: batchScheduleSlots.batchId })
+              .from(batchScheduleSlots)
+              .innerJoin(
+                scheduleSlotTutors,
+                eq(batchScheduleSlots.id, scheduleSlotTutors.slotId),
+              )
+              .where(
+                and(
+                  eq(scheduleSlotTutors.tutorId, tutor.id),
+                  isNull(scheduleSlotTutors.endedAt),
+                ),
+              );
+            return assigned.length
+              ? db
+                  .select()
+                  .from(batches)
+                  .where(
+                    inArray(
+                      batches.id,
+                      assigned.map((row) => row.batchId),
+                    ),
+                  )
+                  .orderBy(asc(batches.name))
+                  .limit(25)
+              : [];
+          })()
+        : [];
+    }
+    const [student] = await db
+      .select({ id: students.id })
+      .from(students)
+      .where(eq(students.userId, session.user.id));
+    return student
+      ? await (async () => {
+          const enrolled = await db
+            .selectDistinct({ batchId: batchEnrollments.batchId })
+            .from(batchEnrollments)
+            .where(
+              and(
+                eq(batchEnrollments.studentId, student.id),
+                isNull(batchEnrollments.leftOn),
+              ),
+            );
+          return enrolled.length
+            ? db
+                .select()
+                .from(batches)
+                .where(
+                  inArray(
+                    batches.id,
+                    enrolled.map((row) => row.batchId),
+                  ),
+                )
+                .orderBy(asc(batches.name))
+                .limit(25)
+            : [];
+        })()
+      : [];
+  })();
   return NextResponse.json({ data: rows, nextCursor: null });
 }
 

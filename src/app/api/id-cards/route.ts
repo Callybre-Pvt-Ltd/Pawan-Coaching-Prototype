@@ -3,14 +3,15 @@ import { NextResponse } from "next/server";
 import * as v from "valibot";
 import { getDb } from "@/db";
 import { auditEvents, idCards, users } from "@/db/schema";
+import { isValidIsoDate } from "@/features/attendance/dates";
 import { verifyMutationRequest } from "@/features/auth/guards";
 import { getSession } from "@/features/auth/session";
 import { problem } from "@/lib/problem";
 
 const schema = v.object({
   userId: v.pipe(v.string(), v.uuid()),
-  issueDate: v.pipe(v.string(), v.regex(/^\d{4}-\d{2}-\d{2}$/)),
-  expiryDate: v.pipe(v.string(), v.regex(/^\d{4}-\d{2}-\d{2}$/)),
+  issueDate: v.pipe(v.string(), v.check(isValidIsoDate)),
+  expiryDate: v.pipe(v.string(), v.check(isValidIsoDate)),
 });
 
 export async function POST(request: Request) {

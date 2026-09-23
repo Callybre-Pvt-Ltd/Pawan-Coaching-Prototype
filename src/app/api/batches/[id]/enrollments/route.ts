@@ -10,13 +10,14 @@ import {
   students,
   users,
 } from "@/db/schema";
+import { isValidIsoDate } from "@/features/attendance/dates";
 import { verifyMutationRequest } from "@/features/auth/guards";
 import { getSession } from "@/features/auth/session";
 import { problem } from "@/lib/problem";
 
 const schema = v.object({
   studentId: v.pipe(v.string(), v.uuid()),
-  joinedOn: v.pipe(v.string(), v.regex(/^\d{4}-\d{2}-\d{2}$/)),
+  joinedOn: v.pipe(v.string(), v.check(isValidIsoDate)),
 });
 
 export async function POST(

@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, eq, gte, isNull, lte } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import {
@@ -10,6 +10,7 @@ import {
   students,
   tutors,
 } from "@/db/schema";
+import { isValidIsoDate } from "@/features/attendance/dates";
 import { getSession } from "@/features/auth/session";
 import { problem } from "@/lib/problem";
 
@@ -20,13 +21,7 @@ export async function GET(request: Request) {
   const from = query.get("from");
   const to = query.get("to");
   let studentId = query.get("studentId");
-  if (
-    !from ||
-    !to ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(from) ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(to) ||
-    from > to
-  )
+  if (!from || !to || !isValidIsoDate(from) || !isValidIsoDate(to) || from > to)
     return problem(
       422,
       "Invalid date range",
@@ -66,6 +61,8 @@ export async function GET(request: Request) {
             and(
               eq(batchEnrollments.studentId, studentId),
               eq(scheduleSlotTutors.tutorId, tutor.id),
+              isNull(scheduleSlotTutors.endedAt),
+              isNull(batchEnrollments.leftOn),
             ),
           )
           .limit(1)

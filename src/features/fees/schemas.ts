@@ -1,6 +1,10 @@
 import * as v from "valibot";
+import { isValidIsoDate } from "@/features/attendance/dates";
 
-const isoDate = v.pipe(v.string(), v.regex(/^\d{4}-\d{2}-\d{2}$/));
+const isoDate = v.pipe(
+  v.string(),
+  v.check(isValidIsoDate, "Use a valid calendar date."),
+);
 
 export const feePlanSchema = v.object({
   studentId: v.pipe(v.string(), v.uuid()),

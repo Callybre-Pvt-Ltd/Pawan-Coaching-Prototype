@@ -47,7 +47,12 @@ export async function GET() {
         scheduleSlotTutors,
         eq(batchScheduleSlots.id, scheduleSlotTutors.slotId),
       )
-      .where(eq(scheduleSlotTutors.tutorId, tutor.id))
+      .where(
+        and(
+          eq(scheduleSlotTutors.tutorId, tutor.id),
+          isNull(scheduleSlotTutors.endedAt),
+        ),
+      )
       .orderBy(desc(attendanceSessions.sessionDate))
       .limit(25);
     return NextResponse.json({

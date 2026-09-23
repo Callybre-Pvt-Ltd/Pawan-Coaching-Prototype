@@ -2,7 +2,7 @@ import { and, desc, eq, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import * as v from "valibot";
 import { getDb } from "@/db";
-import { auditEvents, feePlans } from "@/db/schema";
+import { auditEvents, feePlans, students } from "@/db/schema";
 import { verifyMutationRequest } from "@/features/auth/guards";
 import { getSession } from "@/features/auth/session";
 import { feePlanSchema } from "@/features/fees/schemas";
@@ -11,7 +11,16 @@ import { problem } from "@/lib/problem";
 export async function GET(request: Request) {
   const session = await getSession();
   if (!session) return problem(401, "Unauthenticated", "Sign in to continue.");
-  const studentId = new URL(request.url).searchParams.get("studentId");
+  if (session.user.role === "tutor")
+    return problem(403, "Forbidden", "Tutors cannot access fee plans.");
+  let studentId = new URL(request.url).searchParams.get("studentId");
+  if (session.user.role === "student") {
+    const [student] = await getDb()
+      .select({ id: students.id })
+      .from(students)
+      .where(eq(students.userId, session.user.id));
+    studentId = student?.id ?? null;
+  }
   if (!studentId)
     return problem(422, "Student required", "Provide a studentId query value.");
   const rows = await getDb()

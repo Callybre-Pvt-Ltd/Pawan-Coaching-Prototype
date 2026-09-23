@@ -1,6 +1,10 @@
 import * as v from "valibot";
+import { isValidIsoDate } from "./dates";
 
-const isoDate = v.pipe(v.string(), v.regex(/^\d{4}-\d{2}-\d{2}$/));
+const isoDate = v.pipe(
+  v.string(),
+  v.check(isValidIsoDate, "Use a valid calendar date."),
+);
 const quarterHour = v.pipe(
   v.string(),
   v.regex(/^(?:[01]\d|2[0-3]):(?:00|15|30|45)$/),

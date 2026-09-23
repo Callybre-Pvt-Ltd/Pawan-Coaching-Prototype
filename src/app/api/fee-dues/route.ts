@@ -11,6 +11,8 @@ import { problem } from "@/lib/problem";
 export async function GET() {
   const session = await getSession();
   if (!session) return problem(401, "Unauthenticated", "Sign in to continue.");
+  if (session.user.role === "tutor")
+    return problem(403, "Forbidden", "Tutors cannot access fee records.");
   let studentId: string | undefined;
   if (session.user.role === "student") {
     const [student] = await getDb()
