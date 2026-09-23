@@ -258,6 +258,20 @@ describe("PortalShell mobile navigation", () => {
     expect(result.dialog).not.toHaveAttribute("open");
   });
 
+  it("closes even when the sheet transition does not emit an event", () => {
+    vi.useFakeTimers();
+    renderShell("admin");
+    const { dialog } = openMore("admin");
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Close more options" }),
+    );
+    act(() => vi.advanceTimersByTime(300));
+
+    expect(dialog).not.toHaveAttribute("open");
+    vi.useRealTimers();
+  });
+
   it("highlights pending navigation without a spinner until the route commits", () => {
     mocks.pending = true;
     const view = renderShell("admin");

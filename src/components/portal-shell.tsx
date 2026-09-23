@@ -41,6 +41,7 @@ const iconMap = {
   schedule: BookOpenCheck,
   receipts: CreditCard,
 };
+const mobileMoreCloseFallbackMs = 300;
 type IconName = keyof typeof iconMap;
 type Item = {
   label: string;
@@ -191,13 +192,28 @@ export function PortalShell({
     if (!dialog.open) return;
 
     dialog.dataset.closing = "true";
-    const finishClose = (event: TransitionEvent) => {
-      if (event.target !== dialog || event.propertyName !== "opacity") return;
+    let didClose = false;
+    const finishClose = (event?: TransitionEvent) => {
+      if (
+        event &&
+        (event.target !== dialog || event.propertyName !== "opacity")
+      ) {
+        return;
+      }
+      if (didClose) return;
+      didClose = true;
       dialog.close();
       dialog.removeAttribute("data-closing");
     };
     dialog.addEventListener("transitionend", finishClose);
-    return () => dialog.removeEventListener("transitionend", finishClose);
+    const closeTimeout = window.setTimeout(
+      finishClose,
+      mobileMoreCloseFallbackMs,
+    );
+    return () => {
+      dialog.removeEventListener("transitionend", finishClose);
+      window.clearTimeout(closeTimeout);
+    };
   }, [mobileMoreOpen]);
 
   useEffect(() => {
