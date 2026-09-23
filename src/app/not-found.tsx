@@ -1,7 +1,10 @@
 import { SearchX } from "lucide-react";
 import Link from "next/link";
+import { getSession } from "@/features/auth/session";
 
-export default function NotFound() {
+export default async function NotFound() {
+  const session = await getSession();
+  const dashboardHref = session ? `/${session.user.role}` : "/";
   return (
     <main className="auth-page">
       <section className="auth-card surface" style={{ textAlign: "center" }}>
@@ -15,7 +18,7 @@ export default function NotFound() {
             The link may be outdated or the record may no longer be available.
           </p>
         </div>
-        <Link className="btn btn-primary" href="/">
+        <Link className="btn btn-primary" href={dashboardHref}>
           Return home
         </Link>
       </section>

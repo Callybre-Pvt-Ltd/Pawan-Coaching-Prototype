@@ -1,7 +1,10 @@
 import { ShieldX } from "lucide-react";
 import Link from "next/link";
+import { getSession } from "@/features/auth/session";
 
-export default function ForbiddenPage() {
+export default async function ForbiddenPage() {
+  const session = await getSession();
+  const dashboardHref = session ? `/${session.user.role}` : "/";
   return (
     <main className="auth-page">
       <section className="auth-card surface" style={{ textAlign: "center" }}>
@@ -15,7 +18,7 @@ export default function ForbiddenPage() {
             Your account does not have permission to view this page.
           </p>
         </div>
-        <Link className="btn btn-primary" href="/">
+        <Link className="btn btn-primary" href={dashboardHref}>
           Return home
         </Link>
       </section>
